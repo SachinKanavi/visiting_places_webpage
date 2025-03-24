@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Map - Echoes of Time</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .search {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: flex;
+        }
+        .srch {
+            font-family: 'Times New Roman';
+            width: 200px;
+            height: 40px;
+            background: transparent;
+            border: 1px solid #ff7200;
+            color: #000; /* Change text color to black */
+            border-right: none;
+            font-size: 18px; /* Increase font size */
+            padding: 10px;
+            border-bottom-left-radius: 5px;
+            border-top-left-radius: 5px;
+        }
+        .srch::placeholder {
+            color: #ff7200; /* Change placeholder text color */
+        }
+        .btn {
+            width: 100px;
+            height: 40px;
+            background: #b8cf34; /* Change button background color */
+            border: 2px solid #b8cf34; /* Change button border color */
+            color: #fff;
+            font-size: 15px;
+            border-bottom-right-radius: 5px;
+            border-top-right-radius: 5px;
+            transition: 0.2s ease;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #ff7200; /* Change button hover background color */
+            border: 2px solid #ff7200; /* Change button hover border color */
+            color: #000;
+        }
+        .popup-content {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        .popup-content h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #ff7200;
+        }
+        .popup-content p {
+            margin: 5px 0;
+        }
+        .popup-content a {
+            color: #ff7200;
+            text-decoration: none;
+        }
+        .popup-content a:hover {
+            text-decoration: underline;
+        }
+        .popup-content img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="search">
+        <input class="srch" type="search" name="location" placeholder="location">    
+        <button class="btn" id="searchBtn">Search</button>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([12.9716, 77.5946], 13); // Default to Bengaluru
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var places = [
+            {
+                name: "Bangalore Palace",
+                lat: 12.9987,
+                lon: 77.5921,
+                year: "1878",
+                history: "Bangalore Palace is a royal palace located in Bengaluru, Karnataka, India, in an area that was owned by Rev. J. Garrett, the first principal of the Central High School in Bangalore, now famous as Central College.",
+                youtube: "https://youtu.be/AsBRU8NXQgg?si=VDd0EbSo8kQlMNqn",
+                image: "bglre-palace.jpg" // Add the image URL here
+            },
+            {
+                name: "Lalbagh Botanical Garden",
+                lat: 12.9507,
+                lon: 77.5848,
+                year: "1760",
+                history: "Lalbagh Botanical Garden is an old botanical garden in Bengaluru, India. First planned and laid out during the Dalhousie era and later managed by the British, it is now under the aegis of the Directorate of Horticulture, Government of Karnataka.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "lal-lagh.jpeg" // Add the image URL here
+            },
+            {
+                name: "Vidhana Soudha",
+                lat: 12.9794,
+                lon: 77.5901,
+                year: "1956",
+                history: "The Vidhana Soudha located in Bengaluru, is the seat of the state legislature of Karnataka. It is constructed in a style sometimes described as Mysore Neo-Dravidian, and incorporates elements of Indo-Saracenic and Dravidian styles.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "vidhana-soudha.jpg" // Add the image URL here
+            },
+            {
+                name: "ISKCON Temple",
+                lat: 13.0094,
+                lon: 77.5511,
+                year: "1997",
+                history: "The International Society for Krishna Consciousness (ISKCON), known colloquially as the Hare Krishna movement or Hare Krishnas, is a Gaudiya Vaishnava Hindu religious organisation.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "iskcon-temple.jpg" // Add the image URL here
+            },
+            {
+                name: "Wonderla",
+                lat: 12.8341,
+                lon: 77.4016,
+                year: "2005",
+                history: "Wonderla Holidays Limited is a leading amusement park designing and operating company in India headquartered near Bidadi, 28 kilometres (17 mi) from Bangalore.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "wonderla.jpg" // Add the image URL here
+            },
+            {
+                name: "Bannerghatta National Park",
+                lat: 12.8000,
+                lon: 77.5770,
+                year: "1971",
+                history: "Bannerghatta Biological Park is a zoological reserve near Bangalore in Karnataka, India. It was founded in 1970 and declared as a national park in 1974.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "bannerghatta.jpg" // Add the image URL here
+            },
+            {
+                name: "Nandi Hills",
+                lat: 13.3705,
+                lon: 77.6835,
+                year: "1956",   
+                history: "Nandi Hills or Nandi betta is an ancient hill fortress in southern India, in the Chikkaballapur district of Karnataka state. It is 10 km from Chickballapur town and approximately 60 km from the city of Bangalore.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",    
+                image: "nandi-hills.jpg" // Add the image URL here
+            },
+            {
+                name: "Cubbon Park",
+                lat: 12.9767,
+                lon: 77.5950,
+                year: "1870",
+                history: "Cubbon Park, officially called Sri Chamarajendra Park is a landmark 'lung' area of the Bengaluru city, located within the heart of city in the Central Administrative Area.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "cubbon-park.jpg" // Add the image URL here
+            },
+            {
+                name: "HAL Aerospace Museum",
+                lat: 12.9544,
+                lon: 77.6727,
+                year: "2001",
+                history: "The HAL Aerospace Museum is India's first aerospace museum located at Hindustan Aeronautics Limited premises, in Bangalore. Established in 2001, the museum is part of the HAL Heritage Centre and Aero Space Museum, and showcases the growth of the Indian aviation industry and HAL for six decades.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "hal-museum.jpg" // Add the image URL here
+            },
+            {
+                name: "Visvesvaraya Industrial and Technological Museum",
+                lat: 12.9750,
+                lon: 77.5963,
+                year: "1962",
+                history: "Visvesvaraya Industrial and Technological Museum, Bangalore, India, a constituent unit of the National Council of Science Museums, Ministry of Culture, Government of India, was established in memory of Bharat Ratna Sir M Visvesvaraya.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "vitm.jpg" // Add the image URL here
+            },
+            {
+                name: "Jawaharlal Nehru Planetarium",
+                lat: 12.9841,
+                lon: 77.5893,
+                year: "1989",
+                history: "The Jawaharlal Nehru Planetarium is located at T. Chowdiah Road, High Grounds, in Bangalore, India. It is administered by the Bangalore Association for Science Education (BASE).",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "planetarium.jpg" // Add the image URL here
+            },
+            {
+                name: "Bangalore Fort",
+                lat: 12.9629,
+                lon: 77.5763,
+                year: "1537",
+                history: "Bangalore Fort began in 1537 as a mud fort. The builder was Kempe Gowda I, a vassal of the Vijaynagar Empire and the founder of Bangalore. Hyder Ali in 1761 replaced the mud fort with a stone fort and it was further improved by his son Tipu Sultan the most well-known ruler of the Kingdom of Mysore.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "fort.jpg" // Add the image URL here
+            },
+            {
+                name: "St. Mary's Basilica",
+                lat: 12.9935,
+                lon: 77.6019,
+                year: "1875",
+                history: "St. Mary's Basilica is located in the Archdiocese of Bangalore in the Indian state of Karnataka. It is among the oldest churches in Bangalore and the first church in the state that has been elevated to the status of a minor basilica.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "basilica.jpg" // Add the image URL here
+            },
+            {
+                name: "Bangalore Aquarium",
+                lat: 12.9767,
+                lon: 77.5950,
+                year: "1983",
+                history: "The Bangalore Aquarium is the second largest aquarium in India. It is located at the entrance of Cubbon Park in Bangalore, India, and was established in 1983. It has a variety of exotic cultivable as well as ornamental fish on display.",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "aquarium.jpg" // Add the image URL here
+            },
+            {
+                name: "Bangalore Turf Club",
+                lat: 12.9794,
+                lon: 77.5901,
+                year: "1920",
+                history: "The Bangalore Turf Club is one of the six racing venues in India. It is located in the city of Bangalore. It was established in 1920 by the Mysore",
+                youtube: "https://youtu.be/FFDgqezuhMc?si=5sSm6wUJ6oRVFHQe",
+                image: "turf-club.jpg" // Add the image URL here
+            }
+            // Add more places as needed
+        ];
+
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            var location = document.querySelector('.srch').value;
+            if (location) {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            map.eachLayer(function (layer) {
+                                if (!!layer.toGeoJSON) {
+                                    map.removeLayer(layer);
+                                }
+                            });
+
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            }).addTo(map);
+
+                            data.forEach(result => {
+                                var lat = result.lat;
+                                var lon = result.lon;
+                                map.setView([lat, lon], 13);
+
+                                // Add markers for all places within a certain distance
+                                places.forEach(place => {
+                                    var distance = Math.sqrt(Math.pow(lat - place.lat, 2) + Math.pow(lon - place.lon, 2));
+                                    if (distance < 0.1) { // Adjust the distance threshold as needed
+                                        L.marker([place.lat, place.lon]).addTo(map)
+                                            .bindPopup(`<div class="popup-content"><img src="${place.image}" alt="${place.name}"><h3>${place.name}</h3><p><strong>Year:</strong> ${place.year}</p><p><strong>History:</strong> ${place.history}</p><p><a href="${place.youtube}" target="_blank">Watch on YouTube</a></p></div>`);
+                                    }
+                                });
+                            });
+                        } else {
+                            alert('Location not found');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            } else {
+                alert('Please enter a location');
+            }
+        });
+    </script>
+</body>
+</html>
